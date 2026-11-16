@@ -1,6 +1,6 @@
 {
   "name": "corgi-ime",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Rime Chinese input companion with a local-only corgi desktop pet",
   "author": "Corgi IME contributors",
   "license": "MIT",
