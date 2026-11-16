@@ -24,7 +24,6 @@
     "appId": "dev.corgi.ime",
     "productName": "Corgi IME",
     "asar": true,
-    "afterPack": "scripts/after-pack.cjs",
     "files": [
       "src/**",
       "renderer/**",
@@ -36,6 +35,7 @@
     ],
     "mac": {
       "category": "public.app-category.productivity",
+      "identity": "-",
       "target": "zip"
     },
     "win": {
