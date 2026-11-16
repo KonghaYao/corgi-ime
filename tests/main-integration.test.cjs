@@ -32,7 +32,7 @@ async function boot(t, settings, platform='win32') {
       win = this; this.options = options; this.focused = false;
       this.bounds={x:options.x,y:options.y,width:options.width,height:options.height};
       this.webContents = {send:(_channel,s) => states.push(s),
-        setWindowOpenHandler(){}, on(){}};
+        setWindowOpenHandler(){}, on(){}, setZoomFactor(value){this.zoomFactor=value;}};
     }
     setMenu() {}
     setIgnoreMouseEvents(value) { this.ignoreMouse = value; }
@@ -44,6 +44,7 @@ async function boot(t, settings, platform='win32') {
     isDestroyed() { return false; }
     getBounds() { return {...this.bounds}; }
     setPosition(x,y) { this.bounds.x=x;this.bounds.y=y; }
+    setBounds(bounds) { this.bounds={...bounds}; }
   }
   const electron = {
     app:{requestSingleInstanceLock:()=>true, on(){},
@@ -201,6 +202,37 @@ for (const raw of ['null', '[]', '42', '"oops"', '{broken']) {
  await h.action('walkNow');h.walk();assert.equal(h.latest().walking,true,start);
  }
  });
+
+test('main restores saved pet scale on startup', async t => {
+  const h = await boot(t, JSON.stringify({petScale:1.25}));
+  assert.equal(h.win.bounds.width, 450);
+  assert.equal(h.win.bounds.height, 525);
+  assert.equal(h.win.webContents.zoomFactor, 1.25);
+});
+
+test('main applies configurable pet scale and keeps settings readable', async t => {
+  const h = await boot(t);
+  assert.equal(h.win.bounds.width, 180);
+  assert.equal(h.win.bounds.height, 210);
+  assert.equal(h.win.webContents.zoomFactor, 0.5);
+  assert.equal(h.latest().petScale, 0.5);
+  await h.action('petScale', 1);
+  assert.equal(h.win.bounds.width, 360);
+  assert.equal(h.win.bounds.height, 420);
+  assert.equal(h.win.webContents.zoomFactor, 1);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(h.dir,'settings.json'),'utf8')).petScale, 1);
+  await h.action('openSettings');
+  await h.action('petScale', 0.75);
+  assert.equal(h.win.bounds.width, 360);
+  assert.equal(h.win.bounds.height, 420);
+  assert.equal(h.win.webContents.zoomFactor, 1);
+  assert.equal(h.latest().petScale, 0.75);
+  await h.action('closeSettings');
+  assert.equal(h.win.bounds.width, 270);
+  assert.equal(h.win.bounds.height, 315);
+  assert.equal(h.win.webContents.zoomFactor, 0.75);
+  await assert.rejects(h.action('petScale', 2), /50%/);
+});
 
 test('open native menu blocks long-running focus walks and explicit menu request survives close',async t=>{
  const h=await boot(t);await h.action('focus');await h.action('menu');const x=h.win.bounds.x;

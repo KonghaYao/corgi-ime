@@ -103,6 +103,12 @@ test('halo action cancels pending single-click praise and halo hit-testing holds
  let selector;h.documentEvents.mousemove({target:{closest(s){selector=s;return true;}}});assert.match(selector,/petArea/);assert.equal(h.actions.at(-1).name,'hover');assert.equal(h.actions.at(-1).value,true);
 });
 
+test('renderer pet size selector routes changes and reflects main state',async()=>{
+  const h=boot();h.elements.petScale.value='1.25';
+  await h.elements.petScale.onchange();
+  assert.equal(h.actions.at(-1).name,'petScale');assert.equal(h.actions.at(-1).value,1.25);
+  h.send({petScale:1.5});assert.equal(String(h.elements.petScale.value),'1.5');
+});
 test('closed ring ignores transparent outer area and opens only on real corgi body',()=>{
  const h=boot(),nav=h.elements.hoverActions;h.elements.petHalo.onpointerenter();assert.equal(nav.hidden,true);assert.equal(h.actions.length,0);
  h.elements.petArea.onpointerover({target:{closest:()=>null}});assert.equal(nav.hidden,true);
