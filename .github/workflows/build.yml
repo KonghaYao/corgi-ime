@@ -39,7 +39,7 @@ jobs:
           path: |
             dist/*.zip
             dist/*.exe
-            dist/*.yml
+            dist/latest*.yml
             dist/*.blockmap
           if-no-files-found: error
 
@@ -57,6 +57,6 @@ jobs:
           files: |
             artifacts/*.zip
             artifacts/*.exe
-            artifacts/*.yml
+            artifacts/latest*.yml
             artifacts/*.blockmap
           generate_release_notes: true
