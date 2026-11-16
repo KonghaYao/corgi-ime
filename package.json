@@ -47,7 +47,7 @@
     },
     "icon": "build/icon.png",
     "artifactName": "Corgi-IME-${version}-${os}-${arch}.${ext}",
-    "extraFiles": [
+    "extraResources": [
       {
         "from": "README.md",
         "to": "README.md"
