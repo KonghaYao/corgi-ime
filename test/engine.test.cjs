@@ -1,0 +1,6 @@
+const test=require('node:test'),assert=require('node:assert/strict');const {PetEngine}=require('../src/engine.cjs');
+test('startup baselines old counts, duplicates do not praise',()=>{const e=new PetEngine({threshold:20});assert.equal(e.observe(100),null);assert.equal(e.observe(100),null);assert.equal(e.observe(120,100000).state,'happy');assert.equal(e.observe(120,150000),null);assert.equal(e.praises,1);});
+test('pause discards growth and resets progress',()=>{const e=new PetEngine({threshold:20});e.observe(0);e.observe(10);e.togglePause();e.observe(10000);e.togglePause();assert.equal(e.observe(10001).state,'typing');assert.equal(e.progress,1);});
+test('cooldown avoids flood, threshold rejects invalid input',()=>{const e=new PetEngine({threshold:20});e.observe(0);e.observe(20,100000);assert.equal(e.observe(40,110000).state,'typing');assert.throws(()=>e.setThreshold(NaN));assert.throws(()=>e.setThreshold(1));});
+test('focus and break notifications are single fire',()=>{const e=new PetEngine({},0);e.focus(0);assert.equal(e.tick(1500000).state,'stretch');assert.equal(e.tick(1500001),null);});
+test('invalid counts and date resets are safe',()=>{const e=new PetEngine();assert.equal(e.observe(-1),null);e.observe(100);assert.equal(e.observe(0),null);assert.equal(e.progress,0);});

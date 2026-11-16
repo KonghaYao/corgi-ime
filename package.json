@@ -1,0 +1,75 @@
+{
+  "name": "corgi-ime",
+  "version": "0.5.0",
+  "description": "Rime Chinese input companion with a local-only corgi desktop pet",
+  "author": "Corgi IME contributors",
+  "license": "MIT",
+  "main": "src/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.cjs tests/*.test.cjs",
+    "pack": "electron-builder --dir",
+    "dist:win": "electron-builder --win zip --x64",
+    "dist:mac": "electron-builder --mac zip --x64 --arm64",
+    "preview": "node scripts/preview.cjs"
+  },
+  "dependencies": {
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "electron": "45.3.2",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "dev.corgi.ime",
+    "productName": "Corgi IME",
+    "asar": true,
+    "files": [
+      "src/**",
+      "renderer/**",
+      "rime/**",
+      "package.json",
+      "LICENSE",
+      "THIRD_PARTY.md",
+      "README.md"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "zip"
+    },
+    "win": {
+      "target": "zip",
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": "dir"
+    },
+    "icon": "build/icon.png",
+    "artifactName": "Corgi-IME-${version}-${os}-${arch}.${ext}",
+    "extraFiles": [
+      {
+        "from": "README.md",
+        "to": "README.md"
+      },
+      {
+        "from": "LICENSE",
+        "to": "LICENSE-Corgi.txt"
+      },
+      {
+        "from": "THIRD_PARTY.md",
+        "to": "THIRD_PARTY.md"
+      },
+      {
+        "from": "docs/ACCEPTANCE.md",
+        "to": "ACCEPTANCE.md"
+      },
+      {
+        "from": "docs/INTERACTIONS.md",
+        "to": "INTERACTIONS.md"
+      }
+    ]
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

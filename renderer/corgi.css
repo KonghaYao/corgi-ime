@@ -1,0 +1,79 @@
+/* Original vector character and motion. No fonts, trackers or remote assets. */
+.corgi-pet { width: 200px; height: 200px; display: block; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+.corgi-pet:active { cursor: grabbing; }
+.corgi-pet:focus-visible { outline: 3px solid #5c947e; outline-offset: 2px; border-radius: 35%; }
+.corgi-pet svg { width: 100%; height: 100%; overflow: visible; }
+.corgi-pet svg * { transform-box: fill-box; }
+.corgi-body { transform-origin: 50% 95%; animation: corgi-breathe 3.4s ease-in-out infinite; }
+.corgi-head { transform-origin: 50% 85%; }
+.corgi-tail { transform-origin: 5% 75%; animation: corgi-wag 1.8s ease-in-out infinite; }
+.corgi-eyes { transform-origin: center; animation: corgi-blink 5.7s infinite; }
+.corgi-closed-eyes, .corgi-heart, .corgi-spark, .corgi-sleep { display: none; }
+.corgi-pet[data-state="typing"] .corgi-body { animation: corgi-bounce .55s ease-in-out infinite; }
+.corgi-pet[data-state="typing"] .corgi-paw-left { transform-origin: center; animation: corgi-tap .3s ease-in-out infinite alternate; }
+.corgi-pet[data-state="typing"] .corgi-paw-right { transform-origin: center; animation: corgi-tap .3s .3s ease-in-out infinite alternate; }
+.corgi-pet[data-state="happy"] .corgi-body { animation: corgi-bounce .4s ease-in-out infinite; }
+.corgi-pet[data-state="happy"] .corgi-spark { display: block; animation: corgi-glow .7s ease-in-out infinite alternate; }
+.corgi-pet[data-state="happy"] .corgi-tail, .corgi-pet[data-state="pet"] .corgi-tail { animation-duration: .22s; }
+.corgi-pet[data-state="pet"] .corgi-head { animation: corgi-nuzzle .8s ease-in-out infinite alternate; }
+.corgi-pet[data-state="pet"] .corgi-heart { display: block; animation: corgi-heart 1.4s ease-out infinite; }
+.corgi-pet[data-state="pet"] .corgi-eyes, .corgi-pet[data-state="sleep"] .corgi-eyes { display: none; }
+.corgi-pet[data-state="pet"] .corgi-closed-eyes, .corgi-pet[data-state="sleep"] .corgi-closed-eyes { display: block; }
+.corgi-pet[data-state="sleep"] .corgi-body { transform: translateY(12px) scaleY(.9); animation: corgi-snooze 5s ease-in-out infinite; }
+.corgi-pet[data-state="sleep"] .corgi-sleep { display: block; animation: corgi-heart 3s ease-out infinite; }
+.corgi-pet[data-state="sleep"] .corgi-tail { animation: none; }
+.corgi-pet[data-state="sleep"] .corgi-tongue { display: none; }
+.corgi-pet[data-state="snack"] .corgi-head { animation: corgi-nibble .3s ease-in-out infinite alternate; }
+.corgi-pet[data-state="stretch"] .corgi-body { animation: corgi-stretch 2s ease-in-out infinite; }
+.corgi-pet[data-state="drag"] .corgi-body { animation: corgi-dangle .6s ease-in-out infinite alternate; transform-origin: 50% 20%; }
+@keyframes corgi-breathe { 50% { transform: scaleY(.985) translateY(1px); } }
+@keyframes corgi-wag { 50% { transform: rotate(-12deg); } }
+@keyframes corgi-blink { 0%, 43%, 47%, 100% { transform: scaleY(1); } 45% { transform: scaleY(.07); } }
+@keyframes corgi-bounce { 50% { transform: translateY(-5px) rotate(1deg); } }
+@keyframes corgi-tap { to { transform: translateY(-4px); } }
+@keyframes corgi-glow { to { opacity: .3; } }
+@keyframes corgi-nuzzle { to { transform: rotate(-7deg); } }
+@keyframes corgi-heart { 0% { opacity: 0; transform: translateY(6px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-13px); } }
+@keyframes corgi-snooze { 50% { transform: translateY(12px) scaleY(.88); } }
+@keyframes corgi-nibble { to { transform: translateY(3px) rotate(2deg); } }
+@keyframes corgi-stretch { 50% { transform: scaleX(1.08) scaleY(.92); } }
+@keyframes corgi-dangle { to { transform: rotate(7deg); } }
+@media (prefers-reduced-motion: reduce) { .corgi-pet svg * { animation: none !important; } }
+.corgi-pet[data-motion="off"] svg * { animation: none !important; }
+
+/* 0.5: expressive original character, quiet idle and distinct reactions. */
+.corgi-head { animation: corgi-curious 9s ease-in-out infinite; }
+.corgi-ear-left { transform-origin: 75% 95%; animation: corgi-ear-flick 8s ease-in-out infinite; }
+.corgi-ear-right { transform-origin: 25% 95%; animation: corgi-ear-flick 8s 1.2s ease-in-out infinite; }
+.corgi-gaze { animation: corgi-look 9s ease-in-out infinite; }
+.corgi-tail { animation: corgi-tail-idle 3.8s ease-in-out infinite; }
+.corgi-eyes { animation: corgi-soft-blink 6.4s infinite; }
+.corgi-snack { display: none; transform-origin: center; }
+.corgi-pet[data-state="snack"] .corgi-snack { display:block; animation: corgi-cookie .42s ease-in-out infinite alternate; }
+.corgi-pet[data-state="snack"] .corgi-tongue { display:none; }
+.corgi-pet[data-state="snack"] .corgi-eyes { transform:scaleY(.8); }
+.corgi-pet[data-state="snack"] .corgi-crumb { animation:corgi-crumb .8s ease-out infinite; }
+.corgi-pet[data-state="pet"] .corgi-body { animation:corgi-lean 1.2s ease-in-out infinite alternate; }
+.corgi-pet[data-state="pet"] .corgi-blush { opacity:.95; }
+.corgi-pet[data-state="happy"] .corgi-head { animation:corgi-nuzzle .7s ease-in-out infinite alternate; }
+.corgi-pet[data-state="happy"] .corgi-ear-left,
+.corgi-pet[data-state="happy"] .corgi-ear-right { animation:corgi-ear-flick .6s ease-in-out infinite; }
+.corgi-pet[data-state="sleep"] .corgi-head { animation:none; transform:rotate(-5deg) translateY(4px); }
+.corgi-pet[data-state="sleep"] .corgi-ear-left { animation:none; transform:rotate(-10deg); }
+.corgi-pet[data-state="sleep"] .corgi-ear-right { animation:none; transform:rotate(10deg); }
+.corgi-pet[data-state="drag"] .corgi-head { animation:corgi-nuzzle .8s ease-in-out infinite alternate; }
+.corgi-pet[data-state="drag"] .corgi-paw-left,
+.corgi-pet[data-state="drag"] .corgi-paw-right { animation:corgi-dangle-paw .4s ease-in-out infinite alternate; }
+.corgi-pet[data-state="walk"] .corgi-head { animation:corgi-walk-head .7s ease-in-out infinite; }
+.corgi-pet[data-state="walk"] .corgi-tail { animation:corgi-wag .35s ease-in-out infinite; }
+@keyframes corgi-curious { 0%,24%,52%,100%{transform:rotate(0)} 32%,43%{transform:rotate(-4deg)} 72%,84%{transform:rotate(3deg)} }
+@keyframes corgi-look { 0%,24%,52%,100%{transform:translateX(0)} 32%,43%{transform:translate(-2px,1px)} 72%,84%{transform:translate(2px,-1px)} }
+@keyframes corgi-ear-flick { 0%,65%,84%,100%{transform:rotate(0)} 70%{transform:rotate(-8deg)} 76%{transform:rotate(4deg)} }
+@keyframes corgi-tail-idle { 0%,35%,100%{transform:rotate(0)} 45%,65%{transform:rotate(-18deg)} 55%,75%{transform:rotate(10deg)} }
+@keyframes corgi-soft-blink { 0%,40%,44%,48%,52%,100%{transform:scaleY(1)} 42%,50%{transform:scaleY(.06)} }
+@keyframes corgi-cookie { to{transform:translateY(-3px) rotate(6deg)} }
+@keyframes corgi-crumb { to{transform:translateY(8px);opacity:0} }
+@keyframes corgi-lean { to{transform:translateY(-2px) rotate(-2deg) scale(1.02)} }
+@keyframes corgi-dangle-paw { to{transform:translateY(5px) rotate(8deg)} }
+@keyframes corgi-walk-head { 50%{transform:translateY(-2px) rotate(2deg)} }
+@media (prefers-reduced-motion: reduce) { .corgi-pet svg * { animation: none !important; } }
