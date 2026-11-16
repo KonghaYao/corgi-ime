@@ -9,8 +9,8 @@
     "start": "electron .",
     "test": "node --test test/*.test.cjs tests/*.test.cjs",
     "pack": "electron-builder --dir",
-    "dist:win": "electron-builder --win zip --x64",
-    "dist:mac": "electron-builder --mac zip --x64 --arm64",
+    "dist:win": "electron-builder --win zip --x64 --publish never",
+    "dist:mac": "electron-builder --mac zip --x64 --arm64 --publish never",
     "preview": "node scripts/preview.cjs"
   },
   "dependencies": {
