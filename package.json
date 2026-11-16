@@ -9,11 +9,12 @@
     "start": "electron .",
     "test": "node --test test/*.test.cjs tests/*.test.cjs",
     "pack": "electron-builder --dir",
-    "dist:win": "electron-builder --win zip --x64 --publish never",
+    "dist:win": "electron-builder --win nsis zip --x64 --publish never",
     "dist:mac": "electron-builder --mac zip --x64 --arm64 --publish never",
     "preview": "node scripts/preview.cjs"
   },
   "dependencies": {
+    "electron-updater": "6.8.11",
     "yaml": "2.9.1"
   },
   "devDependencies": {
@@ -39,7 +40,10 @@
       "target": "zip"
     },
     "win": {
-      "target": "zip",
+      "target": [
+        "zip",
+        "nsis"
+      ],
       "icon": "build/icon.ico"
     },
     "linux": {
@@ -47,6 +51,11 @@
     },
     "icon": "build/icon.png",
     "artifactName": "Corgi-IME-${version}-${os}-${arch}.${ext}",
+    "publish": {
+      "provider": "github",
+      "owner": "KonghaYao",
+      "repo": "corgi-ime"
+    },
     "extraResources": [
       {
         "from": "README.md",

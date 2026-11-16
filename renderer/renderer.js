@@ -23,7 +23,7 @@ function update(s){state={...state,...s};if(s.state){$('mascot').dataset.state=s
 }
 function updateTimers(){const now=Date.now();$('timer').textContent=state.focusEnd?(state.paused?'专注已暂停':`${Math.max(0,Math.ceil((state.focusEnd-now)/60000))} 分钟专注`):'';const label=(kind,title)=>!state[kind+'Enabled']?`${title}已关闭`:state.paused?`${title}已暂停`:`${title}约 ${Math.max(0,Math.ceil((state[kind==='water'?'nextWater':'nextBreak']-now)/60000))||0} 分钟后`;$('nextReminders').textContent=label('water','喝水')+' · '+label('break','休息');}
 if(api)api.subscribe(update);else $('bubble').textContent='视觉预览 · 原生输入统计需运行桌面程序';
-for(const id of ['pause','chooseDir','install','uninstall'])$(id).onclick=()=>action(id);
+for(const id of ['pause','chooseDir','install','uninstall','checkUpdates'])$(id).onclick=()=>action(id);
 $('waterNow').onclick=()=>action('reminderNow','water');$('breakNow').onclick=()=>action('reminderNow','break');
 $('reminderDone').onclick=()=>action('reminderAction','done');$('reminderSnooze').onclick=()=>action('reminderAction','snooze');$('reminderDisable').onclick=()=>action('reminderAction','disable');
 $('focus2').onclick=()=>action('focus');$('close').onclick=()=>{thresholdDirty=false;reminderDirty=false;update(state);$('settings').hidden=true;action('closeSettings');};$('save').onclick=()=>action('threshold',Number($('threshold').value));

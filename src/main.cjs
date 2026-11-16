@@ -1,9 +1,9 @@
 'use strict';
-const {app,BrowserWindow,ipcMain,Menu,dialog,screen}=require('electron');
+const {app,BrowserWindow,ipcMain,Menu,dialog,screen,shell}=require('electron');
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const {RoamingController,clampPosition}=require('./roaming.cjs');
 const {PetEngine}=require('./engine.cjs'),{install,uninstall}=require('./install.cjs');
-let win,engine,roamer,settings={},timer,roamTimer,restoreTimer,lastDate,dragAnchor,hovered=false,settingsOpen=false,menuOpen=false,lastInputAt=0,uiScale=0.5;
+let win,engine,roamer,settings={},timer,roamTimer,restoreTimer,lastDate,dragAnchor,hovered=false,settingsOpen=false,menuOpen=false,lastInputAt=0,uiScale=0.5,updater=null;
 let track=require('./counters.cjs').createCounterTracker();
 const defaultRime=()=>process.platform==='darwin'?path.join(os.homedir(),'Library/Rime'):path.join(process.env.APPDATA||os.homedir(),'Rime');
 const BASE_WIDTH=360,BASE_HEIGHT=420,DEFAULT_SCALE=0.5,MIN_SCALE=0.5,MAX_SCALE=1.5;
@@ -18,6 +18,7 @@ function poll(){let connected=false;try{const {readCounters}=require('./counters
 function openSettings(){settingsOpen=true;roamer.hold(Date.now());applyWindowScale(1);send({openSettings:true,state:'idle'});win.setFocusable(true);win.focus();}
 function setRoaming(value){roamer.setEnabled(value,Date.now());settings.roamingEnabled=value;save();send({state:'idle',text:value?'散步已开启。工作或专注时，我会偶尔轻轻走一圈。':'散步已关闭，我会乖乖待在这里。'});}
 function manualWalk(){roamer.requestWalk(Date.now());send({text:'把鼠标移开，关上设置，麦麦就出发散步。'});}
+function checkUpdates(){if(!app.isPackaged){send({text:'开发版不检查更新。'});return;}if(!updater){send({text:'自动更新尚未初始化，请稍后再试。'});return;}updater.check(true);}
 function menu(){menuOpen=true;roamer.hold(Date.now());send({state:engine.paused?'sleep':'idle'});Menu.buildFromTemplate([
  {label:'摸摸麦麦',click(){engine.pats++;act({state:'pet',text:'摸摸收到，给你一颗爱心！'});}},
  {label:'喂块饼干（双击我）',click(){engine.treats++;act({state:'snack',text:'咔嚓！谢谢你的饼干。'});}},
@@ -29,6 +30,7 @@ function menu(){menuOpen=true;roamer.hold(Date.now());send({state:engine.paused?
  {label:'工作时自动散步',type:'checkbox',checked:roamer.enabled,click:item=>setRoaming(item.checked)},
  {label:'散步一小圈',enabled:roamer.enabled,click:manualWalk},
  {label:'设置与输入法安装',click:openSettings},
+ {label:'检查更新',click(){checkUpdates();}},
  {type:'separator'},{label:'退出柯基',click(){app.quit();}}
 ]).popup({window:win,callback(){menuOpen=false;if(!roamer.manual)roamer.hold(Date.now());}});}
 function walkTick(){if(!win||win.isDestroyed()||!roamer)return;const now=Date.now(),bounds=win.getBounds(),area=screen.getDisplayNearestPoint({x:bounds.x,y:bounds.y}).workArea;const cursor=screen.getCursorScreenPoint();if(cursor.x<bounds.x||cursor.x>=bounds.x+bounds.width||cursor.y<bounds.y||cursor.y>=bounds.y+bounds.height)hovered=false;const result=roamer.step({now,bounds,area,working:!!engine.focusEnd||now-lastInputAt<120000,blocked:engine.paused||hovered||settingsOpen||menuOpen||!!dragAnchor||!!engine.pendingReminder});if(result.x!==undefined)win.setPosition(result.x,result.y);if(result.changed)send({state:result.moving?'walk':engine.paused?'sleep':engine.pendingReminder?.kind==='water'?'water':engine.pendingReminder?'stretch':'idle',direction:result.direction||'right'});}
@@ -41,7 +43,7 @@ app.whenReady().then(()=>{try{settings=JSON.parse(fs.readFileSync(path.join(app.
  const area=screen.getPrimaryDisplay().workArea,size=scaledSize(uiScale);win=new BrowserWindow({width:size.width,height:size.height,x:area.x+area.width-size.width-20,y:area.y+area.height-size.height-20,transparent:true,frame:false,resizable:false,alwaysOnTop:true,skipTaskbar:true,focusable:false,show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
  win.webContents.setZoomFactor(uiScale);win.webContents.on('did-finish-load',()=>win.webContents.setZoomFactor(uiScale));
  win.setPosition(...Object.values(clamp(win.getBounds())));win.setMenu(null);if(process.platform!=='linux')win.setIgnoreMouseEvents(true,{forward:true});win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());
- win.loadFile(path.join(__dirname,'../renderer/index.html'));win.once('ready-to-show',()=>{win.showInactive();send({state:engine.paused?'sleep':'idle',text:'鼠标靠近我，周围会浮现互动图标。也可单击、双击或右键。'});poll();});
+ win.loadFile(path.join(__dirname,'../renderer/index.html'));win.once('ready-to-show',()=>{win.showInactive();send({state:engine.paused?'sleep':'idle',text:'鼠标靠近我，周围会浮现互动图标。也可单击、双击或右键。'});poll();if(app.isPackaged&&process.platform!=='linux'){try{const {autoUpdater}=require('electron-updater');const {setupUpdates}=require('./update.cjs');updater=setupUpdates({autoUpdater,app,send,dialog,shell,getWindow:()=>win});}catch(error){console.error('[updater]',error?.message||error);}}});
  const reclamp=()=>{if(win){roamer.hold(Date.now());win.setPosition(...Object.values(clamp(win.getBounds())));send({state:'idle'});}};screen.on('display-removed',reclamp);screen.on('display-metrics-changed',reclamp);timer=setInterval(poll,1500);roamTimer=setInterval(walkTick,100);
 });
 ipcMain.handle('action',async(event,name,value)=>{if(event.sender!==win.webContents)return;
@@ -56,6 +58,7 @@ ipcMain.handle('action',async(event,name,value)=>{if(event.sender!==win.webConte
  else if(name==='reminderNow'){act(engine.showReminder(value));}
  else if(name==='reminderAction'){act(engine.resolveReminder(value));Object.assign(settings,engine.reminderSettings());save();send();}
  else if(name==='openSettings')openSettings();
+ else if(name==='checkUpdates')checkUpdates();
  else if(name==='roaming'){setRoaming(value);}
  else if(name==='walkNow'){manualWalk();}
  else if(name==='closeSettings'){settingsOpen=false;if(!roamer.manual)roamer.hold(Date.now());win.setFocusable(false);send({openSettings:false});applyWindowScale(uiScale);}
@@ -69,4 +72,4 @@ ipcMain.handle('action',async(event,name,value)=>{if(event.sender!==win.webConte
 
  return {...engine.snapshot(),roamingEnabled:roamer.enabled,walking:roamer.moving,petScale:uiScale};
 });
-app.on('before-quit',()=>{clearInterval(timer);clearInterval(roamTimer);clearTimeout(restoreTimer);});app.on('window-all-closed',()=>app.quit());}
+app.on('before-quit',()=>{clearInterval(timer);clearInterval(roamTimer);clearTimeout(restoreTimer);updater?.stop();});app.on('window-all-closed',()=>app.quit());}

@@ -36,7 +36,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: corgi-ime-${{ matrix.artifact }}
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/*.exe
+            dist/*.yml
+            dist/*.blockmap
           if-no-files-found: error
 
   release:
@@ -50,5 +54,9 @@ jobs:
           merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/*.zip
+          files: |
+            artifacts/*.zip
+            artifacts/*.exe
+            artifacts/*.yml
+            artifacts/*.blockmap
           generate_release_notes: true
